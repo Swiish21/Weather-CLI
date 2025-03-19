@@ -26,25 +26,39 @@ class WeatherAPI:
         
     def get_location_coords(self, location: str) -> tuple:
         """Get coordinates for a location name."""
-        url = f"http://api.openweathermap.org/geo/1.0/direct"
-        params = {
-            "q": location,
-            "limit": 1,
-            "appid": self.api_key
-        }
+        # Try different location formats
+        location_formats = [
+            location,  # Original format
+            location.split(',')[0].strip(),  # Just the city name
+            location.replace('UK', 'GB'),  # Replace UK with GB
+            location.replace('US', 'US'),  # Keep US as is
+        ]
         
-        try:
-            response = requests.get(url, params=params)
-            response.raise_for_status()
-            data = response.json()
+        for loc in location_formats:
+            url = f"http://api.openweathermap.org/geo/1.0/direct"
+            params = {
+                "q": loc,
+                "limit": 1,
+                "appid": self.api_key
+            }
             
-            if not data:
-                raise click.ClickException(f"Location '{location}' not found")
+            try:
+                response = requests.get(url, params=params)
+                response.raise_for_status()
+                data = response.json()
                 
-            return data[0]["lat"], data[0]["lon"]
-            
-        except requests.RequestException as e:
-            raise click.ClickException(f"Error fetching location data: {str(e)}")
+                if data:
+                    return data[0]["lat"], data[0]["lon"]
+                    
+            except requests.RequestException as e:
+                continue
+        
+        raise click.ClickException(
+            f"Location '{location}' not found. Try using:\n"
+            f"- City name only (e.g., 'London')\n"
+            f"- City and country code (e.g., 'London,GB')\n"
+            f"- City and country name (e.g., 'London,United Kingdom')"
+        )
 
     def get_current_weather(self, location: str) -> Dict:
         """Get current weather for a location."""
