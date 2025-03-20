@@ -37,6 +37,6 @@ python weather_cli.py add-favorite "Paris, FR"
 # Get weather for all favorite locations
 python weather_cli.py favorites
 
-# Get weather alerts for a location
+# Get weather alerts for a specific location
 python weather_cli.py alerts "Tokyo, JP"
 ``` 
