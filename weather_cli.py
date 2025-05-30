@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 #importing required modules to be used in this program
 import os 
 import json
